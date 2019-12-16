@@ -15,3 +15,5 @@ root = int(input('Enter root: '))
 epsilon = float(input('Enter epsilon: '))
 findRoot(k, root, epsilon)
 
+# 牛顿-拉夫森
+

@@ -1,3 +1,6 @@
+import pylab
+
+
 def findPayment(load, r, m):
     """假设load和r是浮点数，m是整数，
     返回一个总额为load，月利率r，期限m月的
@@ -31,6 +34,27 @@ class Mortgage(object):
 
     def __str__(self):
         return self.legend
+
+    def plotPayments(self, style):
+        pylab.plot(self.paid[1:], style, label=self.legend)
+
+    def plotBalance(self, style):
+        pylab.plot(self.outstanding, style, label=self.legend)
+
+    def plotTotPd(self, style):
+        totPd = [self.paid[0]]
+        for i in range(1, len(self.paid)):
+            totPd.append(totPd[-1] + self.paid[i])
+        pylab.plot(totPd, style, label=self.legend)
+
+    def plotNet(self, style):
+        totPd = [self.paid[0]]
+        for i in range(1, len(self.paid)):
+            totPd.append(totPd[-1] + self.paid[i])
+        equityAcquired = pylab.array([self.loan] * len(self.outstanding))
+        equityAcquired = equityAcquired - pylab.array(self.outstanding)
+        net = pylab.array(totPd)-equityAcquired
+        pylab.plot(net, style, label=self.legend)
 
 
 class Fixed(Mortgage):
@@ -66,6 +90,31 @@ class TwoRate(Mortgage):
         Mortgage.makePayment(self)
 
 
+def plotMortgages(morts, amt):
+    def labelPlot(figure, title, xLabel, yLabel):
+        pylab.figure(figure)
+        pylab.title(title)
+        pylab.xlabel(xLabel)
+        pylab.ylabel(yLabel)
+        pylab.legend(loc='best')
+    # 给图编号赋名
+    styles = ['k-', 'k-.', 'k:']
+    payments, cost, balance, netCost = 0, 1, 2, 3
+    for i in range(len(morts)):
+        pylab.figure(payments)
+        morts[i].plotPayments(styles[i])
+        pylab.figure(cost)
+        morts[i].plotTotPd(styles[i])
+        pylab.figure(balance)
+        morts[i].plotBalance(styles[i])
+        pylab.figure(netCost)
+        morts[i].plotNet(styles[i])
+    labelPlot(payments, 'Monthly Payments of $' + str(amt) + ' Mortgages', 'Months', 'Monthly Payments')
+    labelPlot(cost, 'Cash Outlay of $' + str(amt) + 'Mortgages', 'Months', 'Total Payments')
+    labelPlot(balance, 'Balance Remaining of $' + str(amt) + 'Mortgages', 'Months', 'Remaining Loan Balance of $')
+    labelPlot(netCost, 'Net Cost of $' + str(amt) + ' Mortgages', 'Months', 'Payments - Equity $')
+
+
 def compareMortgage(amt, years, fixedRate, pts, ptsRate, varRate1, varRate2, varMonths):
     totMonths = years * 12
     fixed1 = Fixed(amt, fixedRate, totMonths)
@@ -75,11 +124,12 @@ def compareMortgage(amt, years, fixedRate, pts, ptsRate, varRate1, varRate2, var
     for m in range(totMonths):
         for mort in morts:
             mort.makePayment()
-    for m in morts:
-        print(m)
-        print(m.paid)
-        print(m.outstanding)
-        print(' Total payment = $' + str(int(m.getTotalPaid())))
+    plotMortgages(morts, amt)
+    # for m in morts:
+    #     print(m)
+    #     print(m.paid)
+    #     print(m.outstanding)
+    #     print(' Total payment = $' + str(int(m.getTotalPaid())))
 
 
 compareMortgage(amt=200000, years=30, fixedRate=0.07, pts=3.25, ptsRate=0.05, varRate1=0.045,
