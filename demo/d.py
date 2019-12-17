@@ -16,5 +16,20 @@ def test(n):
         print("for", numFibCalls, "times")
 
 
+def fastFib(n, memo={}):
+    """假设n是非负数，返回第n个斐波那契数
+    动态规划"""
+    if n == 0 or n == 1:
+        return 1
+    try:
+        return memo[n]
+    except KeyError:
+        result = fastFib(n - 1, memo) + fastFib(n - 2, memo)
+        memo[n] = result
+        print("fib of", n, '=', result)
+        return result
+
+
 global numFibCalls
-test(5)
+test(20)
+fastFib(120, {})
