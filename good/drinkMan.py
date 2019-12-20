@@ -187,6 +187,8 @@ def plotLocs(drunkKinds, numSteps, numTrials):
     pylab.xlabel('Steps East/West of Origin')
     pylab.ylabel('Steps North/South of Origin')
     pylab.legend(loc='lower left')
+    pylab.axhline(0)
+    pylab.axvline(0)
     pylab.show()
 
 
